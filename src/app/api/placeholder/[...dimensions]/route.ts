@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { dimensions: string } }
+  { params }: { params: { dimensions: string[] } }
 ) {
   try {
-    const [width, height] = params.dimensions.split('/').map(Number)
+    const [width, height] = params.dimensions.map(Number)
     
     if (!width || !height || width > 500 || height > 500) {
       return NextResponse.json({ error: 'Invalid dimensions' }, { status: 400 })

@@ -232,7 +232,10 @@ export default function ItemsPage() {
                 className={styles.itemImage}
                 onError={(e) => {
                   console.error('Image failed to load:', imageUrl)
-                  e.currentTarget.src = '/api/placeholder/60/60'
+                  // Prevent infinite loops by checking if we're already showing placeholder
+                  if (!e.currentTarget.src.includes('/api/placeholder/')) {
+                    e.currentTarget.src = '/api/placeholder/60/60'
+                  }
                 }}
                 onClick={() => {
                   // Simple preview using Ant Design Modal
