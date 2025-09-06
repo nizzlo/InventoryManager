@@ -223,20 +223,30 @@ export default function ItemsPage() {
       render: (imageUrl: string, record: Item) => (
         <div className={styles.imageCell}>
           {imageUrl ? (
-            <Image
-              width={60}
-              height={60}
-              src={imageUrl}
-              alt={`${record.name} image`}
-              className={styles.itemImage}
-              fallback="/api/placeholder/60/60"
-              preview={{
-                mask: 'Click to preview',
-                maskClassName: styles.imageMask,
-                src: imageUrl, // Use full resolution for preview
-              }}
-              style={{ cursor: 'pointer' }}
-            />
+            <div style={{ position: 'relative' }}>
+              <img
+                width={60}
+                height={60}
+                src={imageUrl}
+                alt={`${record.name} image`}
+                className={styles.itemImage}
+                onError={(e) => {
+                  console.error('Image failed to load:', imageUrl)
+                  e.currentTarget.src = '/api/placeholder/60/60'
+                }}
+                onClick={() => {
+                  // Simple preview using Ant Design Modal
+                  const modal = document.createElement('div')
+                  modal.innerHTML = `
+                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center;" onclick="this.remove()">
+                      <img src="${imageUrl}" style="max-width: 90%; max-height: 90%; border-radius: 8px;" />
+                    </div>
+                  `
+                  document.body.appendChild(modal)
+                }}
+                style={{ cursor: 'pointer', objectFit: 'cover' }}
+              />
+            </div>
           ) : (
             <div className={styles.noImagePlaceholder}>
               No Image
@@ -450,7 +460,6 @@ export default function ItemsPage() {
               label="Product Image"
               name="imageUrl"
               rules={[
-                { type: 'url', message: 'Image URL must be a valid URL' },
                 { max: 500, message: 'Image URL must be 500 characters or less' }
               ]}
             >
