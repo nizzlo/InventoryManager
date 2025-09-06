@@ -70,6 +70,7 @@ export default function ConfigPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['locations'] })
+      queryClient.invalidateQueries({ queryKey: ['balances'] }) // Invalidate balances when locations change
       message.success(editingLocation ? 'Location updated successfully!' : 'Location created successfully!')
       setIsLocationModalVisible(false)
       setEditingLocation(null)
@@ -94,6 +95,7 @@ export default function ConfigPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['locations'] })
+      queryClient.invalidateQueries({ queryKey: ['balances'] }) // Invalidate balances when locations are deleted
       message.success('Location deleted successfully!')
     },
     onError: (error: Error) => {
