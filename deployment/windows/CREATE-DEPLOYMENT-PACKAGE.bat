@@ -7,7 +7,7 @@ echo.
 echo Creating deployment package...
 echo This will take a moment...
 
-cd /d "%~dp0.."
+cd /d "%~dp0..\.."
 
 if exist "InventoryManager-Deployment.zip" del "InventoryManager-Deployment.zip"
 

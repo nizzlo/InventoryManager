@@ -14,6 +14,8 @@ echo   - Docker Desktop (from docker.com)
 echo.
 pause
 
+cd /d "%~dp0..\.."
+
 echo.
 echo [STEP 1] Checking Node.js installation...
 node --version >nul 2>&1

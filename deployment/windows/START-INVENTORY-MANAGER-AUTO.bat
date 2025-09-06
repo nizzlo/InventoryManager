@@ -7,7 +7,7 @@ echo    Starting Inventory Manager Application
 echo ===============================================
 echo.
 
-cd /d "%~dp0.."
+cd /d "%~dp0..\.."
 
 echo [1/5] Checking Docker Desktop...
 :: Check if Docker Desktop is running

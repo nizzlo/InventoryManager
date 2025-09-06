@@ -7,7 +7,7 @@ echo NOTE: You can also stop the application by simply
 echo       closing the START-INVENTORY-MANAGER window.
 echo.
 
-cd /d "%~dp0.."
+cd /d "%~dp0..\.."
 
 echo Stopping application servers...
 taskkill /f /im node.exe 2>nul
