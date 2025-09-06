@@ -10,22 +10,33 @@ export const CreateItemSchema = z.object({
     .max(255, 'Item name must be 255 characters or less'),
   category: z.string()
     .max(100, 'Category must be 100 characters or less')
-    .optional(),
+    .nullable()
+    .optional()
+    .transform(val => val === null ? undefined : val),
   uom: z.string()
     .min(1, 'Unit of measure is required')
     .max(20, 'Unit of measure must be 20 characters or less')
     .default('pcs'),
   barcode: z.string()
     .max(100, 'Barcode must be 100 characters or less')
-    .optional(),
+    .nullable()
+    .optional()
+    .transform(val => val === null ? undefined : val),
   minQty: z.number()
     .min(0, 'Minimum quantity cannot be negative')
     .max(999999999, 'Minimum quantity is too large')
     .default(0),
-  imageUrl: z.string()
-    .url('Image URL must be a valid URL')
-    .max(500, 'Image URL must be 500 characters or less')
-    .optional(),
+  imageUrl: z.union([
+    z.string()
+      .max(500, 'Image URL must be 500 characters or less')
+      .url('Image URL must be a valid URL'),
+    z.string().length(0),
+    z.null(),
+    z.undefined()
+  ]).transform(val => {
+    if (val === null || val === '' || val === undefined) return undefined
+    return val
+  }).optional(),
 })
 
 export const CreateMoveSchema = z.object({
@@ -44,20 +55,30 @@ export const CreateMoveSchema = z.object({
   unitCost: z.number()
     .min(0, 'Unit cost cannot be negative')
     .max(999999999, 'Unit cost is too large')
-    .optional(),
+    .nullable()
+    .optional()
+    .transform(val => val === null ? undefined : val),
   sellPrice: z.number()
     .min(0, 'Sell price cannot be negative')
     .max(999999999, 'Sell price is too large')
-    .optional(),
+    .nullable()
+    .optional()
+    .transform(val => val === null ? undefined : val),
   ref: z.string()
     .max(100, 'Reference must be 100 characters or less')
-    .optional(),
+    .nullable()
+    .optional()
+    .transform(val => val === null ? undefined : val),
   note: z.string()
     .max(500, 'Note must be 500 characters or less')
-    .optional(),
+    .nullable()
+    .optional()
+    .transform(val => val === null ? undefined : val),
   userName: z.string()
     .max(100, 'User name must be 100 characters or less')
-    .optional(),
+    .nullable()
+    .optional()
+    .transform(val => val === null ? undefined : val),
 })
 
 export type CreateItemInput = z.infer<typeof CreateItemSchema>

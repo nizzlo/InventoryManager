@@ -155,7 +155,14 @@ export default function ItemsPage() {
   })
 
   const handleSubmit = (values: CreateItemData) => {
-    createItemMutation.mutate(values)
+    // Clean up null/undefined values before sending to API
+    const cleanedValues = {
+      ...values,
+      category: values.category || undefined,
+      barcode: values.barcode || undefined,
+      imageUrl: values.imageUrl || undefined,
+    }
+    createItemMutation.mutate(cleanedValues)
   }
 
   const handleEdit = (item: Item) => {
