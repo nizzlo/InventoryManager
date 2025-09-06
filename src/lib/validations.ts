@@ -29,7 +29,16 @@ export const CreateItemSchema = z.object({
   imageUrl: z.union([
     z.string()
       .max(500, 'Image URL must be 500 characters or less')
-      .url('Image URL must be a valid URL'),
+      .refine(val => {
+        // Allow relative URLs (starting with /) or full URLs
+        if (val.startsWith('/')) return true
+        try {
+          new URL(val)
+          return true
+        } catch {
+          return false
+        }
+      }, 'Image URL must be a valid URL or relative path'),
     z.string().length(0),
     z.null(),
     z.undefined()
