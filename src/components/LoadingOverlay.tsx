@@ -127,7 +127,7 @@ export function LoadingOverlay() {
       >
         <span 
           style={{
-            fontSize: '40px',
+            fontSize: '60px', // Increased from 40px to 60px
             animation: stopBounce ? 'none' : 'bounce 2s infinite ease-in-out',
             display: 'inline-block',
             transition: 'transform 0.3s ease-out',
@@ -182,21 +182,6 @@ export function LoadingOverlay() {
           indicator={antIcon} 
           size="large"
         />
-      </div>
-      
-      {/* Loading Text with Typewriter Effect */}
-      <div
-        style={{
-          fontSize: '14px',
-          color: '#1890ff',
-          textAlign: 'center',
-          fontWeight: '500',
-          transform: fadeOut ? 'translateY(10px)' : 'translateY(0)',
-          transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1) 0.3s',
-          opacity: fadeOut ? 0 : 1,
-        }}
-      >
-        Loading Ant Design Components...
       </div>
 
       {/* CSS Animations */}
