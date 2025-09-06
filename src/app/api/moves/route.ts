@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { CreateMoveSchema } from '@/lib/validations'
-import { z } from 'zod'
+import { z, ZodError } from 'zod'
 
 // Schema for multiple moves
 const CreateMultipleMovesSchema = z.object({
@@ -56,8 +56,73 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('Error creating move(s):', error)
+    
+    // Handle validation errors from Zod
+    if (error instanceof ZodError) {
+      const validationErrors = error.errors.map(err => ({
+        field: err.path.join('.'),
+        message: err.message
+      }))
+      
+      return NextResponse.json(
+        { 
+          error: 'Validation failed',
+          details: validationErrors,
+          message: validationErrors.map(err => `${err.field}: ${err.message}`).join(', ')
+        },
+        { status: 400 }
+      )
+    }
+    
+    // Handle Prisma database errors
+    if (error && typeof error === 'object' && 'code' in error) {
+      switch (error.code) {
+        case 'P2003':
+          // Foreign key constraint violation
+          return NextResponse.json(
+            { 
+              error: 'Invalid reference',
+              message: 'Item or Location does not exist'
+            },
+            { status: 400 }
+          )
+        case 'P2025':
+          // Record not found
+          return NextResponse.json(
+            { 
+              error: 'Not found',
+              message: 'Required record not found'
+            },
+            { status: 404 }
+          )
+        default:
+          return NextResponse.json(
+            { 
+              error: 'Database error',
+              message: 'A database error occurred while creating the move(s)'
+            },
+            { status: 500 }
+          )
+      }
+    }
+    
+    // Handle JSON parsing errors
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid JSON',
+          message: 'Request body contains invalid JSON'
+        },
+        { status: 400 }
+      )
+    }
+    
+    // Handle other errors
     return NextResponse.json(
-      { error: 'Failed to create move(s)' },
+      { 
+        error: 'Internal server error',
+        message: 'An unexpected error occurred while creating the move(s)'
+      },
       { status: 500 }
     )
   }

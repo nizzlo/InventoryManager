@@ -77,9 +77,29 @@ export default function ItemsPage() {
         },
         body: JSON.stringify(data),
       })
+      
       if (!response.ok) {
-        throw new Error(`Failed to ${editingItem ? 'update' : 'create'} item`)
+        const errorData = await response.json()
+        
+        // Create a more detailed error message
+        let errorMessage = errorData.message || errorData.error || `Failed to ${editingItem ? 'update' : 'create'} item`
+        
+        // If there are validation details, include them
+        if (errorData.details && Array.isArray(errorData.details)) {
+          const fieldErrors = errorData.details.map((detail: any) => 
+            `${detail.field}: ${detail.message}`
+          ).join('\n')
+          errorMessage = `Validation errors:\n${fieldErrors}`
+        }
+        
+        const error = new Error(errorMessage)
+        // Attach additional error data
+        ;(error as any).status = response.status
+        ;(error as any).field = errorData.field
+        ;(error as any).details = errorData.details
+        throw error
       }
+      
       return response.json()
     },
     onSuccess: () => {
@@ -89,8 +109,28 @@ export default function ItemsPage() {
       setEditingItem(null)
       form.resetFields()
     },
-    onError: (error) => {
-      message.error(`Failed to ${editingItem ? 'update' : 'create'} item: ${error.message}`)
+    onError: (error: any) => {
+      // Handle different types of errors with appropriate messages
+      if (error.status === 400) {
+        // Validation or bad request errors
+        if (error.details && Array.isArray(error.details)) {
+          // Show validation errors in a more user-friendly way
+          error.details.forEach((detail: any) => {
+            message.error(`${detail.field}: ${detail.message}`)
+          })
+        } else {
+          message.error(error.message)
+        }
+      } else if (error.status === 409) {
+        // Conflict errors (like duplicate SKU/barcode)
+        message.error(error.message)
+      } else if (error.status === 500) {
+        // Server errors
+        message.error(`Server error: ${error.message}`)
+      } else {
+        // Generic error fallback
+        message.error(`Failed to ${editingItem ? 'update' : 'create'} item: ${error.message}`)
+      }
     },
   })
 
@@ -331,15 +371,22 @@ export default function ItemsPage() {
             <Form.Item
               label="SKU"
               name="sku"
-              rules={[{ required: true, message: 'Please enter SKU' }]}
+              rules={[
+                { required: true, message: 'SKU is required' },
+                { max: 50, message: 'SKU must be 50 characters or less' },
+                { pattern: /^[A-Za-z0-9\-_]+$/, message: 'SKU can only contain letters, numbers, hyphens, and underscores' }
+              ]}
             >
-              <Input placeholder="Enter SKU" />
+              <Input placeholder="Enter SKU (letters, numbers, -, _)" />
             </Form.Item>
 
             <Form.Item
               label="Name"
               name="name"
-              rules={[{ required: true, message: 'Please enter name' }]}
+              rules={[
+                { required: true, message: 'Item name is required' },
+                { max: 255, message: 'Item name must be 255 characters or less' }
+              ]}
             >
               <Input placeholder="Enter item name" />
             </Form.Item>
@@ -347,6 +394,9 @@ export default function ItemsPage() {
             <Form.Item
               label="Category"
               name="category"
+              rules={[
+                { max: 100, message: 'Category must be 100 characters or less' }
+              ]}
             >
               <Input placeholder="Enter category (optional)" />
             </Form.Item>
@@ -354,7 +404,10 @@ export default function ItemsPage() {
             <Form.Item
               label="Unit of Measure"
               name="uom"
-              rules={[{ required: true, message: 'Please enter UoM' }]}
+              rules={[
+                { required: true, message: 'Unit of measure is required' },
+                { max: 20, message: 'Unit of measure must be 20 characters or less' }
+              ]}
             >
               <Input placeholder="e.g., pcs, kg, liters" />
             </Form.Item>
@@ -362,6 +415,9 @@ export default function ItemsPage() {
             <Form.Item
               label="Barcode"
               name="barcode"
+              rules={[
+                { max: 100, message: 'Barcode must be 100 characters or less' }
+              ]}
             >
               <Input placeholder="Enter barcode (optional)" />
             </Form.Item>
@@ -369,10 +425,15 @@ export default function ItemsPage() {
             <Form.Item
               label="Minimum Quantity"
               name="minQty"
-              rules={[{ required: true, message: 'Please enter minimum quantity' }]}
+              rules={[
+                { required: true, message: 'Minimum quantity is required' },
+                { type: 'number', min: 0, message: 'Minimum quantity cannot be negative' },
+                { type: 'number', max: 999999999, message: 'Minimum quantity is too large' }
+              ]}
             >
               <InputNumber
                 min={0}
+                max={999999999}
                 style={{ width: '100%' }}
                 placeholder="Enter minimum quantity"
               />
@@ -381,6 +442,10 @@ export default function ItemsPage() {
             <Form.Item
               label="Product Image"
               name="imageUrl"
+              rules={[
+                { type: 'url', message: 'Image URL must be a valid URL' },
+                { max: 500, message: 'Image URL must be 500 characters or less' }
+              ]}
             >
               <Space direction="vertical" style={{ width: '100%' }}>
                 <Upload
