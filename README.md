@@ -1,6 +1,43 @@
-# 📦 Inventory Manager
+# 📦 Configurable Inventory Manager
 
-A modern inventory management system built with Next.js, PostgreSQL, Prisma, and Ant Design.
+A modern inventory management system built with Next.js, PostgreSQL, Prisma, and Ant Design. 
+
+**✨ Fully Configurable**: Easily customize the application name and branding through environment variables.
+
+## 🎨 Configuration
+
+You can easily customize the application name and description by setting environment variables:
+
+```bash
+# Example: Change to your company name
+NEXT_PUBLIC_APP_NAME="Samantha Communication Inventory Manager"
+NEXT_PUBLIC_APP_DESCRIPTION="Inventory management system for Samantha Communication"
+```
+
+### Configuration Files
+
+1. **Copy the example environment file:**
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. **Edit `.env.local` with your custom settings:**
+   ```bash
+   # Application Configuration
+   NEXT_PUBLIC_APP_NAME="Your Company Inventory Manager"
+   NEXT_PUBLIC_APP_DESCRIPTION="Inventory management system for Your Company"
+   NEXT_PUBLIC_APP_VERSION="1.0.0"
+   ```
+
+3. **Restart the development server to see changes:**
+   ```bash
+   npm run dev
+   ```
+
+The application name will appear in:
+- Browser title bar
+- Header navigation
+- Application metadata
 
 ## 🚀 Features
 

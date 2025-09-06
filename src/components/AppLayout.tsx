@@ -4,6 +4,7 @@ import { Layout, Menu, MenuProps } from 'antd'
 import { ShoppingCartOutlined, BoxPlotOutlined, BarChartOutlined } from '@ant-design/icons'
 import { useRouter, usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
+import { APP_NAME } from '@/config/app'
 
 const { Header, Content, Sider } = Layout
 
@@ -47,7 +48,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           padding: '0 24px',
           lineHeight: '64px'
         }}>
-          📦 Inventory Manager
+          📦 {APP_NAME}
         </div>
       </Header>
       <Layout>

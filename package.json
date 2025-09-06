@@ -1,5 +1,5 @@
 {
-  "name": "inventory-manager",
+  "name": "configurable-inventory-manager",
   "version": "0.1.0",
   "private": true,
   "scripts": {
