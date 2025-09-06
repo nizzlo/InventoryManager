@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Inventory Manager - Simple Setup Guide for Mac
+# Inventory Manager - Development Mode Startup for Mac
 
 echo "==============================================="
-echo "    Starting Inventory Manager Application"
+echo "  Starting Inventory Manager (Development Mode)"
 echo "==============================================="
 echo
 
@@ -79,13 +79,14 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5433/inventory"
 EOF
 fi
 
-echo "[5/5] Starting application..."
+echo "[5/5] Starting application in DEVELOPMENT mode..."
 echo
 echo "==============================================="
 echo "   ✅ Application started at: http://localhost:3000"
 echo "   🌐 Opening browser automatically..."
+echo "   🔧 Running in DEVELOPMENT mode (better for images)"
 echo
-echo "   💡 TO STOP: Simply close this terminal window"
+echo "   💡 TO STOP: Press Ctrl+C in this terminal"
 echo "   ⚠️  Keep this window open while using the app"
 echo "==============================================="
 echo
@@ -93,9 +94,8 @@ echo
 sleep 3
 open "http://localhost:3000"
 
-# Start the application
-echo "Note: If images don't display properly, try refreshing your browser (Cmd+Shift+R)"
-npm start
+# Start the application in development mode instead of production
+npm run dev
 
 # Cleanup when application stops
 echo
