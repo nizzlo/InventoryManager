@@ -11,7 +11,8 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset --force",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "start:prod": "NODE_ENV=production next start"
   },
   "dependencies": {
     "next": "14.0.0",
