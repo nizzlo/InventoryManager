@@ -18,6 +18,7 @@ model Item {
   uom       String   @default("pcs")
   barcode   String?  @unique
   minQty    Decimal  @default(0)
+  imageUrl  String?
   createdAt DateTime @default(now())
   moves     InventoryMove[]
 

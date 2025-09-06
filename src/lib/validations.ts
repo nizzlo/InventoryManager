@@ -7,6 +7,7 @@ export const CreateItemSchema = z.object({
   uom: z.string().default('pcs'),
   barcode: z.string().optional(),
   minQty: z.number().min(0).default(0),
+  imageUrl: z.string().optional(),
 })
 
 export const CreateMoveSchema = z.object({

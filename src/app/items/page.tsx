@@ -12,11 +12,14 @@ import {
   Space,
   Typography,
   Popconfirm,
-  Tooltip 
+  Tooltip,
+  Upload,
+  Image 
 } from 'antd'
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { AppLayout } from '@/components/AppLayout'
+import styles from './items.module.css'
 
 const { Title } = Typography
 
@@ -28,6 +31,7 @@ interface Item {
   uom: string
   barcode?: string
   minQty: string
+  imageUrl?: string
   createdAt: string
 }
 
@@ -38,11 +42,13 @@ interface CreateItemData {
   uom: string
   barcode?: string
   minQty: number
+  imageUrl?: string
 }
 
 export default function ItemsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<Item | null>(null)
+  const [uploading, setUploading] = useState(false)
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
 
@@ -121,6 +127,7 @@ export default function ItemsPage() {
       uom: item.uom,
       barcode: item.barcode,
       minQty: parseFloat(item.minQty),
+      imageUrl: item.imageUrl,
     })
     setIsModalOpen(true)
   }
@@ -135,7 +142,63 @@ export default function ItemsPage() {
     form.resetFields()
   }
 
+  const handleImageUpload = async (file: File) => {
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Upload failed')
+      }
+      
+      const result = await response.json()
+      form.setFieldsValue({ imageUrl: result.imageUrl })
+      message.success('Image uploaded successfully!')
+    } catch (error: any) {
+      message.error(`Upload failed: ${error.message}`)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const columns = [
+    {
+      title: 'Image',
+      dataIndex: 'imageUrl',
+      key: 'imageUrl',
+      render: (imageUrl: string, record: Item) => (
+        <div className={styles.imageCell}>
+          {imageUrl ? (
+            <Image
+              width={60}
+              height={60}
+              src={imageUrl}
+              alt={`${record.name} image`}
+              className={styles.itemImage}
+              fallback="/api/placeholder/60/60"
+              preview={{
+                mask: 'Click to preview',
+                maskClassName: styles.imageMask,
+                src: imageUrl, // Use full resolution for preview
+              }}
+              style={{ cursor: 'pointer' }}
+            />
+          ) : (
+            <div className={styles.noImagePlaceholder}>
+              No Image
+            </div>
+          )}
+        </div>
+      ),
+      width: 90,
+    },
     {
       title: 'SKU',
       dataIndex: 'sku',
@@ -246,6 +309,7 @@ export default function ItemsPage() {
           rowKey="id"
           pagination={{ pageSize: 10 }}
           scroll={{ x: 1200 }}
+          className={styles.itemsTable}
         />
 
         <Modal
@@ -312,6 +376,40 @@ export default function ItemsPage() {
                 style={{ width: '100%' }}
                 placeholder="Enter minimum quantity"
               />
+            </Form.Item>
+
+            <Form.Item
+              label="Product Image"
+              name="imageUrl"
+            >
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <Upload
+                  accept="image/*"
+                  showUploadList={false}
+                  beforeUpload={(file) => {
+                    handleImageUpload(file)
+                    return false // Prevent default upload
+                  }}
+                >
+                  <Button icon={<UploadOutlined />} loading={uploading}>
+                    {uploading ? 'Uploading...' : 'Upload Image'}
+                  </Button>
+                </Upload>
+                <Form.Item name="imageUrl" noStyle>
+                  <Input placeholder="Image URL (will be filled automatically)" disabled />
+                </Form.Item>
+                {form.getFieldValue('imageUrl') && (
+                  <div style={{ marginTop: 8 }}>
+                    <Image
+                      width={100}
+                      height={100}
+                      src={form.getFieldValue('imageUrl')}
+                      alt="Preview"
+                      style={{ objectFit: 'cover', borderRadius: 4 }}
+                    />
+                  </div>
+                )}
+              </Space>
             </Form.Item>
 
             <Form.Item>

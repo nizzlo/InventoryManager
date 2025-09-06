@@ -1,0 +1,46 @@
+.itemsTable .ant-table-tbody > tr > td {
+  padding: 20px 16px !important;
+  vertical-align: middle;
+}
+
+.itemsTable .ant-table-thead > tr > th {
+  padding: 16px !important;
+}
+
+.imageCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.noImagePlaceholder {
+  width: 60px;
+  height: 60px;
+  background-color: #f5f5f5;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #999;
+  border: 1px solid #e8e8e8;
+  text-align: center;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.itemImage {
+  border-radius: 6px;
+  border: 1px solid #e8e8e8;
+  object-fit: cover;
+  transition: all 0.2s ease;
+}
+
+.itemImage:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+.imageMask {
+  border-radius: 6px !important;
+}

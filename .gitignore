@@ -41,3 +41,7 @@ next-env.d.ts
 
 # setup logs
 setup/*.log
+
+# uploads
+/public/uploads/*
+!/public/uploads/.gitkeep
