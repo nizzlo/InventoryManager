@@ -1,7 +1,7 @@
 'use client'
 
 import { Layout, Menu, MenuProps } from 'antd'
-import { ShoppingCartOutlined, BoxPlotOutlined, BarChartOutlined } from '@ant-design/icons'
+import { ShoppingCartOutlined, BoxPlotOutlined, BarChartOutlined, SettingOutlined } from '@ant-design/icons'
 import { useRouter, usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
 import { APP_NAME } from '@/config/app'
@@ -31,6 +31,11 @@ export function AppLayout({ children }: AppLayoutProps) {
       key: '/balances',
       icon: <BarChartOutlined />,
       label: 'Balances',
+    },
+    {
+      key: '/config',
+      icon: <SettingOutlined />,
+      label: 'Configuration',
     },
   ]
 
