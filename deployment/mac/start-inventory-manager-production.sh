@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Inventory Manager - Simple Setup Guide for Mac
+# Inventory Manager - Production Mode Startup for Mac
+# Note: Images may not display properly in production mode
 
 echo "==============================================="
-echo "    Starting Inventory Manager Application"
+echo "  Starting Inventory Manager (Production Mode)"
 echo "==============================================="
+echo "⚠️  WARNING: Images may not display properly in production mode"
+echo "    Use start-inventory-manager.sh for better image support"
 echo
 
 cd "$(dirname "$0")/../.."
@@ -67,7 +70,15 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "[4/5] Setting up database..."
+echo "[4/5] Building application for production..."
+npm run build
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to build application!"
+    read -p "Press Enter to exit..."
+    exit 1
+fi
+
+echo "[5/5] Setting up database..."
 npx prisma generate
 npx prisma migrate deploy
 
@@ -79,14 +90,15 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5433/inventory"
 EOF
 fi
 
-echo "[5/5] Starting application..."
+echo "[6/6] Starting application in PRODUCTION mode..."
 echo
 echo "==============================================="
 echo "   ✅ Application started at: http://localhost:3000"
 echo "   🌐 Opening browser automatically..."
-echo "   🔧 Running in DEVELOPMENT mode for better image support"
+echo "   🏭 Running in PRODUCTION mode"
+echo "   ✅ Images should now work properly!"
 echo
-echo "   💡 TO STOP: Press Ctrl+C in this terminal"
+echo "   💡 TO STOP: Simply close this terminal window"
 echo "   ⚠️  Keep this window open while using the app"
 echo "==============================================="
 echo
@@ -94,9 +106,9 @@ echo
 sleep 3
 open "http://localhost:3000"
 
-# Start the application in development mode for better image support
-echo "Note: Using development mode for optimal image display"
-npm run dev
+# Start the application in production mode
+echo "✅ Images now supported in production mode via API routes"
+npm start
 
 # Cleanup when application stops
 echo

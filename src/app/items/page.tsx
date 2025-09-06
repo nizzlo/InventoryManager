@@ -14,7 +14,8 @@ import {
   Popconfirm,
   Tooltip,
   Upload,
-  Image 
+  Image,
+  Spin 
 } from 'antd'
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -22,6 +23,19 @@ import { AppLayout } from '@/components/AppLayout'
 import styles from './items.module.css'
 
 const { Title } = Typography
+
+// Helper function to get the correct image URL for production mode
+const getImageUrl = (imageUrl: string | undefined): string | undefined => {
+  if (!imageUrl) return undefined
+  
+  // In production mode, use API route for better image serving
+  if (process.env.NODE_ENV === 'production' && imageUrl.startsWith('/uploads/')) {
+    const filename = imageUrl.replace('/uploads/', '')
+    return `/api/uploads/${filename}`
+  }
+  
+  return imageUrl
+}
 
 interface Item {
   id: number
@@ -220,43 +234,45 @@ export default function ItemsPage() {
       title: 'Image',
       dataIndex: 'imageUrl',
       key: 'imageUrl',
-      render: (imageUrl: string, record: Item) => (
-        <div className={styles.imageCell}>
-          {imageUrl ? (
-            <div style={{ position: 'relative' }}>
-              <img
+      render: (imageUrl: string, record: Item) => {
+        const processedImageUrl = getImageUrl(imageUrl);
+        
+        return (
+          <div className={styles.imageCell}>
+            {processedImageUrl ? (
+              <Image
                 width={60}
                 height={60}
-                src={imageUrl}
+                src={processedImageUrl}
                 alt={`${record.name} image`}
                 className={styles.itemImage}
-                onError={(e) => {
-                  console.error('Image failed to load:', imageUrl)
-                  // Prevent infinite loops by checking if we're already showing placeholder
-                  if (!e.currentTarget.src.includes('/api/placeholder/')) {
-                    e.currentTarget.src = '/api/placeholder/60/60'
-                  }
-                }}
-                onClick={() => {
-                  // Simple preview using Ant Design Modal
-                  const modal = document.createElement('div')
-                  modal.innerHTML = `
-                    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; display: flex; align-items: center; justify-content: center;" onclick="this.remove()">
-                      <img src="${imageUrl}" style="max-width: 90%; max-height: 90%; border-radius: 8px;" />
+                style={{ objectFit: 'cover', borderRadius: 6 }}
+                fallback="/api/placeholder/60/60"
+                preview={{
+                  mask: (
+                    <div style={{ 
+                      background: 'rgba(0,0,0,0.5)', 
+                      color: 'white', 
+                      padding: '4px',
+                      borderRadius: '4px',
+                      fontSize: '12px'
+                    }}>
+                      Click to view
                     </div>
-                  `
-                  document.body.appendChild(modal)
+                  )
                 }}
-                style={{ cursor: 'pointer', objectFit: 'cover' }}
+                onError={() => {
+                  console.error('Image failed to load:', processedImageUrl)
+                }}
               />
-            </div>
-          ) : (
-            <div className={styles.noImagePlaceholder}>
-              No Image
-            </div>
-          )}
-        </div>
-      ),
+            ) : (
+              <div className={styles.noImagePlaceholder}>
+                No Image
+              </div>
+            )}
+          </div>
+        );
+      },
       width: 90,
     },
     {
@@ -484,13 +500,32 @@ export default function ItemsPage() {
                 </Form.Item>
                 {form.getFieldValue('imageUrl') && (
                   <div style={{ marginTop: 8 }}>
-                    <Image
-                      width={100}
-                      height={100}
-                      src={form.getFieldValue('imageUrl')}
-                      alt="Preview"
-                      style={{ objectFit: 'cover', borderRadius: 4 }}
-                    />
+                    <Spin spinning={uploading}>
+                      <Image
+                        width={100}
+                        height={100}
+                        src={getImageUrl(form.getFieldValue('imageUrl'))}
+                        alt="Preview"
+                        style={{ objectFit: 'cover', borderRadius: 4 }}
+                        fallback="/api/placeholder/100/100"
+                        preview={{
+                          mask: (
+                            <div style={{ 
+                              background: 'rgba(0,0,0,0.6)', 
+                              color: 'white', 
+                              padding: '4px',
+                              borderRadius: '4px',
+                              fontSize: '11px'
+                            }}>
+                              Preview
+                            </div>
+                          )
+                        }}
+                        onError={() => {
+                          console.error('Preview image failed to load:', form.getFieldValue('imageUrl'))
+                        }}
+                      />
+                    </Spin>
                   </div>
                 )}
               </Space>
