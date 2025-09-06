@@ -137,6 +137,7 @@ export default function MovesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['moves'] })
       queryClient.invalidateQueries({ queryKey: ['balances'] })
+      queryClient.invalidateQueries({ queryKey: ['locations'] }) // Invalidate locations cache for new locations
       message.success(`Stock move ${editingMove ? 'updated' : 'recorded'} successfully!`)
       setIsModalOpen(false)
       setEditingMove(null)
@@ -186,6 +187,7 @@ export default function MovesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['moves'] })
       queryClient.invalidateQueries({ queryKey: ['balances'] })
+      queryClient.invalidateQueries({ queryKey: ['locations'] }) // Invalidate locations cache for new locations
       message.success('All stock moves recorded successfully!')
       setIsModalOpen(false)
       setIsMultipleMode(false)
