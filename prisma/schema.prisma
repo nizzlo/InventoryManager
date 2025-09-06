@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Item {
+  id        Int      @id @default(autoincrement())
+  sku       String   @unique
+  name      String
+  category  String?
+  uom       String   @default("pcs")
+  barcode   String?  @unique
+  minQty    Decimal  @default(0)
+  createdAt DateTime @default(now())
+  moves     InventoryMove[]
+
+  @@map("item")
+}
+
+model Location {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  moves InventoryMove[]
+
+  @@map("location")
+}
+
+enum MoveType {
+  IN
+  OUT
+  ADJUST
+}
+
+model InventoryMove {
+  id         Int       @id @default(autoincrement())
+  itemId     Int
+  locationId Int
+  type       MoveType
+  qty        Decimal
+  unitCost   Decimal?
+  ref        String?
+  note       String?
+  movedAt    DateTime  @default(now())
+  userName   String?
+
+  item     Item     @relation(fields: [itemId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@index([itemId, locationId, movedAt])
+  @@map("inventorymove")
+}
