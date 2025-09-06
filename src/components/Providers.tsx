@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactNode, useState } from 'react'
+import { LoadingOverlay } from './LoadingOverlay'
 
 interface ProvidersProps {
   children: ReactNode
@@ -22,6 +23,7 @@ export function Providers({ children }: ProvidersProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <LoadingOverlay />
       {children}
     </QueryClientProvider>
   )
