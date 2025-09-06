@@ -35,8 +35,40 @@ else
     echo "✅ Docker found ($(docker --version))"
 fi
 
+echo "Checking if Docker Desktop is running..."
+if ! docker info >/dev/null 2>&1; then
+    echo "❌ Docker Desktop is not running!"
+    echo "Please start Docker Desktop and wait for it to fully load"
+    echo "(you should see the whale icon in your menu bar)"
+    echo
+    read -p "Press Enter when Docker Desktop is ready, or Ctrl+C to cancel..."
+    
+    # Wait for Docker to be ready with timeout
+    echo "Waiting for Docker to be ready..."
+    timeout=60
+    while [ $timeout -gt 0 ]; do
+        if docker info >/dev/null 2>&1; then
+            echo "✅ Docker Desktop is now ready!"
+            break
+        fi
+        sleep 2
+        timeout=$((timeout-2))
+        echo "Still waiting... ($timeout seconds remaining)"
+    done
+    
+    if [ $timeout -le 0 ]; then
+        echo "❌ Docker Desktop failed to start within 60 seconds"
+        echo "Please ensure Docker Desktop is fully started and try again"
+        read -p "Press Enter to exit..."
+        exit 1
+    fi
+else
+    echo "✅ Docker Desktop is running"
+fi
+
 echo
 echo "[STEP 3] Installing application dependencies..."
+echo "This may take 2-5 minutes on first run..."
 npm install
 if [ $? -ne 0 ]; then
     echo "❌ Failed to install dependencies!"
@@ -48,6 +80,7 @@ fi
 
 echo
 echo "[STEP 4] Building application..."
+echo "This may take 1-3 minutes..."
 npm run build
 if [ $? -ne 0 ]; then
     echo "❌ Failed to build application!"
@@ -59,14 +92,42 @@ fi
 
 echo
 echo "[STEP 5] Setting up database..."
+echo "Generating Prisma client..."
 npx prisma generate
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to generate Prisma client!"
+    read -p "Press Enter to exit..."
+    exit 1
+fi
+
+echo "Starting database containers..."
 docker-compose up -d
-sleep 5
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to start database containers!"
+    echo "Make sure Docker Desktop is running and try again"
+    read -p "Press Enter to exit..."
+    exit 1
+fi
+
+echo "Waiting for database to be ready..."
+sleep 8
+
+echo "Running database migrations..."
 npx prisma migrate deploy
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to run database migrations!"
+    echo "Database might not be ready yet. You can try running this later:"
+    echo "  npx prisma migrate deploy"
+    read -p "Press Enter to continue anyway..."
+fi
 
 # Run empty seed to ensure clean database
 echo "Setting up empty database..."
 npx prisma db seed
+if [ $? -ne 0 ]; then
+    echo "⚠️  Warning: Failed to run database seed"
+    echo "This is usually not critical. You can set up data manually."
+fi
 
 echo
 echo "==============================================="
