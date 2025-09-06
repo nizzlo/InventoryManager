@@ -22,6 +22,7 @@
 
 2. **Double-click** the `START-INVENTORY-MANAGER.bat` file
    - This will automatically:
+     - **Start Docker Desktop** (if not running)
      - Start the database
      - Install dependencies (first time only)
      - Start the application
@@ -30,6 +31,10 @@
 3. **Access the application**:
    - The app will open automatically in your browser
    - Or manually go to: http://localhost:3000
+
+### ⏱️ First Startup Time
+- **First time**: 2-3 minutes (Docker starts + dependencies install)
+- **Subsequent times**: 30-60 seconds (just Docker + app startup)
 
 ### 🛑 To Stop the Application
 - **Simply close the command prompt window** (click the X button)
