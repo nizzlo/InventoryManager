@@ -91,7 +91,7 @@ call npm start
 
 echo.
 echo Application stopped. Cleaning up...
-docker-compose down > nul 2>&1
+docker-compose stop > nul 2>&1
 echo Database stopped.
 echo You can now safely close this window.
 pause

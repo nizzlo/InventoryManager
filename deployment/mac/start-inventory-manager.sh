@@ -99,7 +99,7 @@ npm start
 # Cleanup when application stops
 echo
 echo "Cleaning up..."
-docker-compose down >/dev/null 2>&1
+docker-compose stop >/dev/null 2>&1
 echo
 echo "✅ Application stopped safely."
 echo "You can now close this window."
