@@ -5,10 +5,11 @@ import {
   Typography,
   Alert,
   Space,
-  Tag
+  Tag,
+  Button
 } from 'antd'
-import { WarningOutlined } from '@ant-design/icons'
-import { useQuery } from '@tanstack/react-query'
+import { WarningOutlined, ReloadOutlined } from '@ant-design/icons'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AppLayout } from '@/components/AppLayout'
 
 const { Title } = Typography
@@ -30,8 +31,10 @@ interface Item {
 }
 
 export default function BalancesPage() {
+  const queryClient = useQueryClient()
+
   // Fetch balances
-  const { data: balances, isLoading: balancesLoading } = useQuery({
+  const { data: balances, isLoading: balancesLoading, refetch: refetchBalances } = useQuery({
     queryKey: ['balances'],
     queryFn: async (): Promise<Balance[]> => {
       const response = await fetch('/api/balances')
@@ -40,10 +43,12 @@ export default function BalancesPage() {
       }
       return response.json()
     },
+    staleTime: 30000, // Consider data stale after 30 seconds
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   })
 
   // Fetch items to get min quantities
-  const { data: items } = useQuery({
+  const { data: items, refetch: refetchItems } = useQuery({
     queryKey: ['items'],
     queryFn: async (): Promise<Item[]> => {
       const response = await fetch('/api/items')
@@ -52,7 +57,15 @@ export default function BalancesPage() {
       }
       return response.json()
     },
+    staleTime: 60000, // Items don't change as frequently
   })
+
+  const handleRefresh = async () => {
+    await Promise.all([
+      refetchBalances(),
+      refetchItems()
+    ])
+  }
 
   // Create a map of item min quantities for quick lookup
   const itemMinQtyMap = items?.reduce((acc, item) => {
@@ -189,7 +202,17 @@ export default function BalancesPage() {
   return (
     <AppLayout>
       <div>
-        <Title level={2}>Stock Balances</Title>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <Title level={2} style={{ margin: 0 }}>Stock Balances</Title>
+          <Button 
+            type="primary" 
+            icon={<ReloadOutlined />} 
+            onClick={handleRefresh}
+            loading={balancesLoading}
+          >
+            Refresh
+          </Button>
+        </div>
         
         {lowStockItems.length > 0 && (
           <Alert

@@ -118,6 +118,7 @@ export default function ItemsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['items'] })
+      queryClient.invalidateQueries({ queryKey: ['balances'] }) // Invalidate balances when items change
       message.success(`Item ${editingItem ? 'updated' : 'created'} successfully!`)
       setIsModalOpen(false)
       setEditingItem(null)
@@ -161,6 +162,7 @@ export default function ItemsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['items'] })
+      queryClient.invalidateQueries({ queryKey: ['balances'] }) // Invalidate balances when items are deleted
       message.success('Item deleted successfully!')
     },
     onError: (error) => {
