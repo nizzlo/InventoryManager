@@ -46,6 +46,7 @@ model InventoryMove {
   type       MoveType
   qty        Decimal
   unitCost   Decimal?
+  sellPrice  Decimal?
   ref        String?
   note       String?
   movedAt    DateTime  @default(now())

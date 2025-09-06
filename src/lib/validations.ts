@@ -16,6 +16,7 @@ export const CreateMoveSchema = z.object({
   type: z.enum(['IN', 'OUT', 'ADJUST']),
   qty: z.number().min(0.01, 'Quantity must be greater than 0'),
   unitCost: z.number().min(0).optional(),
+  sellPrice: z.number().min(0).optional(),
   ref: z.string().optional(),
   note: z.string().optional(),
   userName: z.string().optional(),
