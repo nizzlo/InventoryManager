@@ -8,6 +8,31 @@ const CreateMultipleMovesSchema = z.object({
   moves: z.array(CreateMoveSchema).min(1, 'At least one move is required'),
 })
 
+// Helper function to get or create location
+async function getOrCreateLocationId(moveData: any) {
+  if (moveData.locationId) {
+    return moveData.locationId
+  }
+  
+  if (moveData.locationName) {
+    // Try to find existing location first
+    let location = await prisma.location.findUnique({
+      where: { name: moveData.locationName }
+    })
+    
+    // Create new location if it doesn't exist
+    if (!location) {
+      location = await prisma.location.create({
+        data: { name: moveData.locationName }
+      })
+    }
+    
+    return location.id
+  }
+  
+  throw new Error('Either locationId or locationName must be provided')
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -19,12 +44,19 @@ export async function POST(request: NextRequest) {
       
       const moves = await Promise.all(
         validatedData.moves.map(async (moveData) => {
+          const locationId = await getOrCreateLocationId(moveData)
+          
           return prisma.inventoryMove.create({
             data: {
-              ...moveData,
+              itemId: moveData.itemId,
+              locationId,
+              type: moveData.type,
               qty: moveData.qty.toString(),
               unitCost: moveData.unitCost?.toString(),
               sellPrice: moveData.sellPrice?.toString(),
+              ref: moveData.ref,
+              note: moveData.note,
+              userName: moveData.userName,
             },
             include: {
               item: true,
@@ -38,13 +70,19 @@ export async function POST(request: NextRequest) {
     } else {
       // Handle single move
       const validatedData = CreateMoveSchema.parse(body)
+      const locationId = await getOrCreateLocationId(validatedData)
       
       const move = await prisma.inventoryMove.create({
         data: {
-          ...validatedData,
+          itemId: validatedData.itemId,
+          locationId,
+          type: validatedData.type,
           qty: validatedData.qty.toString(),
           unitCost: validatedData.unitCost?.toString(),
           sellPrice: validatedData.sellPrice?.toString(),
+          ref: validatedData.ref,
+          note: validatedData.note,
+          userName: validatedData.userName,
         },
         include: {
           item: true,

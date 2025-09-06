@@ -9,6 +9,7 @@ import {
   Select, 
   InputNumber, 
   Input,
+  AutoComplete,
   message,
   Space,
   Typography,
@@ -51,7 +52,8 @@ interface InventoryMove {
 
 interface CreateMoveData {
   itemId: number
-  locationId: number
+  locationId?: number
+  locationName?: string
   type: 'IN' | 'OUT' | 'ADJUST'
   qty: number
   unitCost?: number
@@ -67,6 +69,16 @@ export default function MovesPage() {
   const [isMultipleMode, setIsMultipleMode] = useState(false)
   const [form] = Form.useForm()
   const queryClient = useQueryClient()
+
+  // Prepare location options for AutoComplete
+  const getLocationOptions = () => {
+    if (!locations) return []
+    return locations.map(location => ({
+      value: location.name,
+      label: location.name,
+      id: location.id
+    }))
+  }
 
   // Fetch moves
   const { data: moves, isLoading: movesLoading } = useQuery({
@@ -187,10 +199,20 @@ export default function MovesPage() {
   const handleSubmit = (values: any) => {
     if (isMultipleMode) {
       // Handle multiple moves
-      const moves = values.moves.map((move: any) => ({
-        ...move,
-        userName: 'Current User',
-      }))
+      const moves = values.moves.map((move: any) => {
+        const processedMove = { ...move, userName: 'Current User' }
+        
+        // Handle location - if it's a string (typed), use locationName; if it's a number, use locationId
+        if (typeof move.location === 'string') {
+          processedMove.locationName = move.location
+          delete processedMove.locationId
+        } else {
+          processedMove.locationId = move.location
+          delete processedMove.locationName
+        }
+        
+        return processedMove
+      })
       createMultipleMoveMutation.mutate(moves)
     } else {
       // Handle single move
@@ -198,6 +220,16 @@ export default function MovesPage() {
         ...values,
         userName: 'Current User',
       }
+      
+      // Handle location - if it's a string (typed), use locationName; if it's a number, use locationId
+      if (typeof values.location === 'string') {
+        moveData.locationName = values.location
+        delete moveData.locationId
+      } else {
+        moveData.locationId = values.location
+        delete moveData.locationName
+      }
+      
       createMoveMutation.mutate(moveData)
     }
   }
@@ -206,7 +238,7 @@ export default function MovesPage() {
     setEditingMove(move)
     form.setFieldsValue({
       itemId: move.item.id,
-      locationId: move.location.id,
+      location: move.location.name, // Use location name for AutoComplete
       type: move.type,
       qty: parseFloat(move.qty),
       unitCost: move.unitCost ? parseFloat(move.unitCost) : undefined,
@@ -461,17 +493,18 @@ export default function MovesPage() {
 
                           <Form.Item
                             {...restField}
-                            name={[name, 'locationId']}
+                            name={[name, 'location']}
                             label="Location"
-                            rules={[{ required: true, message: 'Please select a location' }]}
+                            rules={[{ required: true, message: 'Please select or enter a location' }]}
                           >
-                            <Select placeholder="Select location">
-                              {locations?.map((location) => (
-                                <Option key={location.id} value={location.id}>
-                                  {location.name}
-                                </Option>
-                              ))}
-                            </Select>
+                            <AutoComplete
+                              placeholder="Select or type location"
+                              options={getLocationOptions()}
+                              filterOption={(inputValue, option) =>
+                                option?.value.toLowerCase().includes(inputValue.toLowerCase()) ?? false
+                              }
+                              style={{ width: '100%' }}
+                            />
                           </Form.Item>
 
                           <Form.Item
@@ -591,16 +624,17 @@ export default function MovesPage() {
 
                 <Form.Item
                   label="Location"
-                  name="locationId"
-                  rules={[{ required: true, message: 'Please select a location' }]}
+                  name="location"
+                  rules={[{ required: true, message: 'Please select or enter a location' }]}
                 >
-                  <Select placeholder="Select location">
-                    {locations?.map((location) => (
-                      <Option key={location.id} value={location.id}>
-                        {location.name}
-                      </Option>
-                    ))}
-                  </Select>
+                  <AutoComplete
+                    placeholder="Select existing location or type new one"
+                    options={getLocationOptions()}
+                    filterOption={(inputValue, option) =>
+                      option?.value.toLowerCase().includes(inputValue.toLowerCase()) ?? false
+                    }
+                    style={{ width: '100%' }}
+                  />
                 </Form.Item>
 
                 <Form.Item

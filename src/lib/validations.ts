@@ -54,7 +54,12 @@ export const CreateMoveSchema = z.object({
     .min(1, 'Please select a valid item'),
   locationId: z.number()
     .int('Location ID must be an integer')
-    .min(1, 'Please select a valid location'),
+    .min(1, 'Please select a valid location')
+    .optional(),
+  locationName: z.string()
+    .min(1, 'Location name is required')
+    .max(100, 'Location name must be 100 characters or less')
+    .optional(),
   type: z.enum(['IN', 'OUT', 'ADJUST'], {
     errorMap: () => ({ message: 'Movement type must be IN, OUT, or ADJUST' })
   }),
@@ -88,7 +93,13 @@ export const CreateMoveSchema = z.object({
     .nullable()
     .optional()
     .transform(val => val === null ? undefined : val),
-})
+}).refine(
+  (data) => data.locationId !== undefined || data.locationName !== undefined,
+  {
+    message: 'Either locationId or locationName must be provided',
+    path: ['location'],
+  }
+)
 
 export type CreateItemInput = z.infer<typeof CreateItemSchema>
 export type CreateMoveInput = z.infer<typeof CreateMoveSchema>
