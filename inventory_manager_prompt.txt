@@ -1,0 +1,140 @@
+Prompt for Claude 4 - Inventory Manager
+
+You are an expert full-stack engineer. I want you to **build me a simple inventory manager** with the following requirements. Please generate **all the code**, step-by-step setup instructions, and schema migrations so I can run this on Mac or Windows.  
+
+---
+
+## **Tech Stack**
+- **Frontend + Backend:** Next.js (with TypeScript, App Router, API routes)  
+- **UI Library:** Ant Design (with @ant-design/icons)  
+- **Database:** PostgreSQL 16  
+- **ORM:** Prisma  
+- **Language:** TypeScript  
+- **Other utils:** Zod (validation), React Query (data fetching), optional @zxing/browser for barcode scan  
+
+---
+
+## **Setup Requirements**
+1. Include instructions for **running PostgreSQL with Docker Compose** (username `invuser`, password `invpass`, db `inventory`).  
+2. Show how to set `.env` file with `DATABASE_URL`.  
+3. Include Prisma schema + migration command.  
+4. Generate a seed script with one sample location, one sample item, and some stock moves.  
+
+---
+
+## **Database Schema**
+Use Prisma models:  
+
+```prisma
+model Item {
+  id        Int      @id @default(autoincrement())
+  sku       String   @unique
+  name      String
+  category  String?
+  uom       String   @default("pcs")
+  barcode   String?  @unique
+  minQty    Decimal  @default(0)
+  createdAt DateTime @default(now())
+  moves     InventoryMove[]
+}
+
+model Location {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  moves InventoryMove[]
+}
+
+enum MoveType {
+  IN
+  OUT
+  ADJUST
+}
+
+model InventoryMove {
+  id         Int       @id @default(autoincrement())
+  itemId     Int
+  locationId Int
+  type       MoveType
+  qty        Decimal
+  unitCost   Decimal?
+  ref        String?
+  note       String?
+  movedAt    DateTime  @default(now())
+  userName   String?
+
+  item     Item     @relation(fields: [itemId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@index([itemId, locationId, movedAt])
+}
+```
+
+Also create a **SQL View**:
+```sql
+CREATE OR REPLACE VIEW v_item_location_balances AS
+SELECT
+  i.id AS item_id,
+  i.sku,
+  i.name,
+  l.id AS location_id,
+  l.name AS location,
+  COALESCE(SUM(
+    CASE m.type
+      WHEN 'IN'     THEN m.qty
+      WHEN 'ADJUST' THEN m.qty
+      WHEN 'OUT'    THEN -m.qty
+      ELSE 0
+    END
+  ),0) AS qty_on_hand
+FROM item i
+CROSS JOIN location l
+LEFT JOIN inventorymove m
+  ON m.itemid = i.id AND m.locationid = l.id
+GROUP BY i.id, i.sku, i.name, l.id, l.name;
+```
+
+---
+
+## **APIs**
+Please create Next.js API routes:  
+- `GET /api/items` → list items  
+- `POST /api/items` → create item  
+- `POST /api/moves` → record a stock movement  
+- `GET /api/balances` → return balances from the view  
+
+---
+
+## **UI Pages**
+1. **Items Page**  
+   - AntD `Table` of items (SKU, Name, Category, UoM, Min Qty).  
+   - Button + Modal to add new item.  
+
+2. **Stock Moves Page**  
+   - Simple form: select Item, Location, Type (IN/OUT/ADJUST), Qty, Unit Cost, Ref, Note.  
+   - Submit to `/api/moves`.  
+
+3. **Balances Page**  
+   - AntD `Table` showing `sku`, `name`, `location`, `qty_on_hand`.  
+   - Highlight rows where `qty_on_hand < minQty`.  
+
+---
+
+## **Features**
+- Low stock alert (highlight in red when qty < minQty).  
+- Multi-location (use Location table).  
+- Basic seed data for testing.  
+- Keep code structured and commented.  
+
+---
+
+## **Deliverables**
+1. `docker-compose.yml` for Postgres + pgAdmin.  
+2. Full Next.js project skeleton with Prisma setup.  
+3. Prisma migration + seed script.  
+4. API routes for items, moves, balances.  
+5. Ant Design pages (Items, Moves, Balances).  
+6. Instructions: how to install, migrate, seed, and run with `npm run dev`.  
+
+---
+
+👉 Please output the solution in **clear steps with code blocks** for each file. Make sure I can copy-paste into a new project and run it end-to-end.
