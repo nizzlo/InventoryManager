@@ -49,7 +49,7 @@ export async function PUT(
     return NextResponse.json(item)
   } catch (error) {
     console.error('Error updating item:', error)
-    if (error.code === 'P2025') {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Item not found' },
         { status: 404 }
@@ -88,7 +88,7 @@ export async function DELETE(
     return NextResponse.json({ message: 'Item deleted successfully' })
   } catch (error) {
     console.error('Error deleting item:', error)
-    if (error.code === 'P2025') {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
       return NextResponse.json(
         { error: 'Item not found' },
         { status: 404 }
