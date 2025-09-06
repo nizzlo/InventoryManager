@@ -32,8 +32,9 @@
    - Or manually go to: http://localhost:3000
 
 ### 🛑 To Stop the Application
-- Double-click `STOP-INVENTORY-MANAGER.bat`
-- Or close the command prompt windows
+- **Simply close the command prompt window** (click the X button)
+- The application and database will stop automatically
+- Alternative: Double-click `STOP-INVENTORY-MANAGER.bat`
 
 ### 📞 Troubleshooting
 - If you see "port already in use" errors, run the STOP script first

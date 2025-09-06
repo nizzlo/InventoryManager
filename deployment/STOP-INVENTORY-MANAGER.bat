@@ -3,6 +3,9 @@ echo ===============================================
 echo    Stopping Inventory Manager Application
 echo ===============================================
 echo.
+echo NOTE: You can also stop the application by simply
+echo       closing the START-INVENTORY-MANAGER window.
+echo.
 
 cd /d "%~dp0.."
 
@@ -17,6 +20,9 @@ echo.
 echo ===============================================
 echo   Inventory Manager stopped successfully!
 echo ===============================================
+echo.
+echo TIP: Next time you can just close the startup window
+echo      instead of using this stop script.
 echo.
 
 pause

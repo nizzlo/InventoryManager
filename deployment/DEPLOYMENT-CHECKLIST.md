@@ -14,8 +14,9 @@
 - [ ] **docker-compose.yml** (database setup)
 
 ### 📁 Deployment Scripts (from deployment/ folder)
-- [ ] **START-INVENTORY-MANAGER.bat** (main startup script)
-- [ ] **STOP-INVENTORY-MANAGER.bat** (shutdown script)
+- [ ] **START-INVENTORY-MANAGER.bat** (main startup script - auto-cleanup on close)
+- [ ] **START-INVENTORY-MANAGER-SIMPLE.bat** (alternative with enhanced auto-cleanup)
+- [ ] **STOP-INVENTORY-MANAGER.bat** (manual shutdown script - optional)
 - [ ] **BUILD-FOR-PRODUCTION.bat** (build script)
 - [ ] **README-SETUP.md** (setup instructions)
 - [ ] **Create-Desktop-Shortcut.vbs** (desktop shortcut creator)
@@ -41,10 +42,11 @@
 ## 🔧 Troubleshooting Tips
 
 ### Common Issues:
-1. **"Port already in use"** → Run STOP script first
+1. **"Port already in use"** → Close the startup window and try again
 2. **Docker not starting** → Ensure Docker Desktop is running
 3. **Database connection errors** → Check if port 5433 is free
 4. **Build errors** → Ensure Node.js is properly installed
+5. **App won't stop** → Close the black command window or use STOP script
 
 ### Support Files:
 - Error logs will appear in command prompt windows
