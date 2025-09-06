@@ -60,6 +60,7 @@ if errorlevel 1 (
 echo [4/5] Setting up database...
 call npx prisma generate
 call npx prisma migrate deploy
+
 if not exist ".env.local" (
     echo Creating default configuration...
     echo NEXT_PUBLIC_APP_NAME="Inventory Manager" > .env.local

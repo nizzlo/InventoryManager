@@ -68,6 +68,9 @@ call npx prisma generate
 call docker-compose up -d
 timeout /t 5 /nobreak > nul
 call npx prisma migrate deploy
+
+:: Run empty seed to ensure clean database
+echo Setting up empty database...
 call npx prisma db seed
 
 echo.

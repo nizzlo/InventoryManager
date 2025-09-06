@@ -9,6 +9,7 @@
     "lint": "next lint",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
+    "db:seed-demo": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed-demo.ts",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset --force",
     "db:generate": "prisma generate",
@@ -39,6 +40,6 @@
     "ts-node": "^10.9.0"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed-empty.ts"
   }
 }

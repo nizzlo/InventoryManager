@@ -70,6 +70,7 @@ fi
 echo "[4/5] Setting up database..."
 npx prisma generate
 npx prisma migrate deploy
+
 if [ ! -f ".env.local" ]; then
     echo "Creating default configuration..."
     cat > .env.local << EOF
